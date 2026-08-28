@@ -1,0 +1,11 @@
+{
+  "_comment": "掃描管線:要跑哪些資料源(相對 collectors/)。預設 demo_source.py=免憑證的假資料,開箱即可看到完整 UI。要接真實系統,把 adapters/ 底下對應的那支加進來(可混用),或寫自己的 collector 只需輸出 state.json 的一個區段——格式見 SPEC §11.2。",
+  "steps": ["demo_source.py"],
+  "_examples": {
+    "全部真實": ["adapters/chat_unread.py", "adapters/meeting_suggest.py", "adapters/jira_mine.py",
+              "adapters/jira_enrich.py", "adapters/calendar_today.py", "adapters/meeting_digest.py",
+              "adapters/release_status.py", "adapters/dev_progress.py"],
+    "只接工單其餘用demo": ["demo_source.py", "adapters/jira_mine.py", "adapters/jira_enrich.py"],
+    "自己寫的來源": ["my_source.py"]
+  }
+}

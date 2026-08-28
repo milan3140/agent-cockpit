@@ -1,0 +1,12 @@
+{
+  "name": "agent-cockpit",
+  "version": "0.1.0",
+  "description": "PM 維運駕駛艙 — 桌面玻璃球 widget(即時問題/會議/Jira+維運/開發進度)",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^33.0.0"
+  }
+}

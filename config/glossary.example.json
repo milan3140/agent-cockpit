@@ -1,0 +1,48 @@
+{
+  "_comment": "作者產品線名詞對照表——逐字稿/會議紀錄/Jira 的口語簡稱→正式名。校對用:Codex 萃取前先讀這張表,避免把簡稱當成不同產品或音譯錯人名。owner 2026-08-28 立(公司正在把 App 轉 Web,簡稱常混用)。",
+  "products": [
+    {"canonical": "Product E", "aliases": ["NRU", "nru", "Product E", "林Product E", "Product E", "聚寶盆"],
+     "note": "★Product E=作者(林Product E),旗下有多個 App:Product E、Product F、Product G;NRU=Product E的 Web 版(公司正在把 App 轉 Web)。PM=PM-1。段落命名用「Product E-<App名>」"},
+    {"canonical": "Product F", "aliases": ["強棒", "旺旺來", "Product F"], "note": "Product E旗下 App;PM=PM-1"},
+    {"canonical": "Product G", "aliases": ["Product G", "大富翁", "Tyrus", "期貨大作用", "泰瑞斯"],
+     "note": "Product E旗下 App;★逐字稿常被語音轉錯成「Tyrus的期貨大作用」之類,聽到就是這個 App;PM=PM-1"},
+    {"canonical": "Product A", "aliases": ["Product A", "Emily", "emily", "定存股"], "note": "含Product A Bot"},
+    {"canonical": "Product B(Product B)", "aliases": ["Product B", "Product B", "sara", "ProductB", "Product B王", "型態學"],
+     "note": "Product B App=同一產品的 App 名"},
+    {"canonical": "Product C", "aliases": ["Product C", "動能", "Edwin", "edwin"], "note": "與Product D是不同作者"},
+    {"canonical": "Product D", "aliases": ["Product D", "放風箏", "Product D"], "note": "與Product C是不同作者"},
+    {"canonical": "Product H", "aliases": ["算利", "教官"], "note": "PM=PM-2"},
+    {"canonical": "PAGEs", "aliases": ["pages", "PAGE", "Lego Core"], "note": "共用元件框架,版本號獨立於 App(PAGEs_iOS_x.y.z)"}
+  ],
+  "people": [
+    {"canonical": "Owner", "aliases": ["Owner", "owner", "米蘭"], "role": "PM——負責Product A(本人)"},
+    {"canonical": "Manager", "aliases": ["Manager", "丹尼斯"], "role": "主管"},
+    {"canonical": "PM-1", "aliases": ["PM-1", "文姸"],
+     "role": "PM——負責Product E全系列(Product E、Product F、Product G,含 Web 版)"},
+    {"canonical": "PM-2", "aliases": ["PM-2", "虹妃"],
+     "role": "PM——負責Product B(Product B)、Product C、Product D放風箏、Product H"},
+    {"canonical": "RD-iOS", "aliases": ["RD-iOS", "尚容"], "role": "iOS RD(owner 與 PM-2 的線)"},
+    {"canonical": "RD-Android", "aliases": ["RD-Android", "宇婷"], "role": "Android RD(owner 與 PM-2 的線)"},
+    {"canonical": "RD-Mobile", "aliases": ["RD-Mobile", "建榮"], "role": "RD——iOS/Android 都做"},
+    {"canonical": "RD-Backend", "aliases": ["RD-Backend"], "role": "後端 RD"},
+    {"canonical": "PM-3", "aliases": ["PM-3", "宣諠"], "role": "PM(常主持立會過單)"},
+    {"canonical": "RD-2", "aliases": ["Tony", "弘勳"], "role": "RD"}
+  ],
+  "meeting_context": {
+    "_comment": "立會(VIP2 看板)的進行方式——萃取時用「誰在講」交叉驗證這段屬於哪個產品。owner 2026-08-28 口述。",
+    "型態": "PM 逐一跟 RD 對項目、問進度;一個 PM 講完換下一個",
+    "PM負責產品": {
+      "PM-1": ["Product E", "Product F", "Product G", "Product E Web"],
+      "PM-2": ["Product B(Product B)", "Product C", "Product D放風箏", "Product H"],
+      "Owner": ["Product A"]
+    },
+    "RD角色": {"RD-Backend": "後端", "RD-iOS": "iOS",
+               "RD-Android": "Android", "RD-Mobile": "iOS/Android 都做"},
+    "發言順序": "通常 PM-1(Product E) → PM-2(Product B/Product C/Product D/算利) → owner(Product A,通常沒事);以逐字稿實際順序為準,此為先驗"
+  },
+  "terms": [
+    {"canonical": "強弱勢線", "aliases": ["強弱線", "強弱勢"], "note": "自選股列表的訊號按鈕,週20MA 相關"},
+    {"canonical": "後修", "aliases": [], "note": "上版後再修的狀態,不擋發版"},
+    {"canonical": "CBAS", "aliases": ["cbas"], "note": "可轉債資產交換,Product B 功能"}
+  ]
+}

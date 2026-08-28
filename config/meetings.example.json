@@ -1,0 +1,9 @@
+{
+  "recurring": [
+    {"match": "AI.?(週|周)會", "prep": "要交 AI 週報(用 weekly-report skill 產草稿)",
+     "doc": "https://docs.google.com/document/d/1V2HwLag6Fu6bPUIccENdb5RsH6DKLxUrvMAS1xuLLf4/edit"},
+    {"match": "VIP2.*(週|周)會|小組(週|周)會", "prep": "更新進度文件",
+     "doc": "https://docs.google.com/document/d/1Gt1s0YaIbeZZgsMirRbf5RVyBXkK7qKagWtylT2bnwI/edit"},
+    {"match": "Product A.*(例行|討論)", "prep": "對齊Product A Bot 進度", "doc": ""}
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "products": [
+    {"id": "emily_bot", "name": "Product A Bot", "paths": ["1_Projects/Product AAI_WebApp"],
+     "lane_keys": ["emily", "aiwebap", "bff", "claims", "conversation"],
+     "jira_product": "Product A", "release_app": "Product A",
+     "goal": "Product A Bot 正式站穩定運行並對 VIP 開放,問答/健診/估價全功能上線"},
+    {"id": "sara_cb", "name": "Product B Web", "paths": ["1_Projects/Product B 可轉債"],
+     "lane_keys": ["sara", "cb", "debt"],
+     "jira_product": "Product B", "release_app": "Product B",
+     "goal": "Product B 可轉債桌面版 web(三欄工作區+K線+CBAS)上線",
+     "remote": "A 機開發中——本機只看得到 repo 同步的部分,lane 級進度待 A 機 reporter"},
+    {"id": "edwin", "name": "Product C(動能)", "paths": [], "lane_keys": [],
+     "jira_product": "Product C", "release_app": "",
+     "goal": "Product C App 訊號與資料表改接穩定,雙平台體驗一致"},
+    {"id": "bulu", "name": "Product D(Product D)", "paths": [], "lane_keys": [],
+     "jira_product": "Product D", "release_app": "",
+     "goal": "Product D App 功能交付與版本推進"}
+  ]
+}

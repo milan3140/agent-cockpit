@@ -1,0 +1,21 @@
+{
+  "_comment": "PM 維運駕駛艙 — Chat 掃描目標與優先序。space=Chat room/dm id(URL /room/<id> 或 /dm/<id> 的第一段)。priority 小=先。panel=即時問題 / 維運。",
+  "self_user": "users/000000000",
+  "immediate": [
+    {"space": "SPACE_ID_1", "kind": "room", "label": "Product A討論小組", "priority": 2, "note": "Product A Bot 開發與檔期;含 AccManager Purple、MKT Louis"},
+    {"space": "SPACE_ID_1", "kind": "room", "label": "Product D/Product C/Product AㄉPM與RD", "priority": 5},
+    {"space": "SPACE_ID_1", "kind": "room", "label": "[VIP-Product B] 專案群組", "priority": 6},
+    {"space": "1bAvUKSPACE_ID_2", "kind": "dm", "label": "Manager (direct report)", "priority": 1},
+    {"space": "1hDTxKSPACE_ID_2", "kind": "dm", "label": "泳成 (Product B AccManager)", "priority": 3},
+    {"space": "rgNxBKSPACE_ID_2", "kind": "dm", "label": "RD-Android (Android RD)", "priority": 4},
+    {"space": "04M5yKSPACE_ID_2", "kind": "dm", "label": "RD-iOS (iOS RD)", "priority": 4},
+    {"space": "_l79aKSPACE_ID_2", "kind": "dm", "label": "RD-Mobile (Android/iOS RD)", "priority": 4},
+    {"space": "SPACE_ID_2", "kind": "room", "label": "PM支柱夥伴", "priority": 6,
+     "relevance_filter": true,
+     "relevance_rule": "我是作者產品線 PM(產品:Product A、Sara可轉債)。相關(要留):①點名我(owner/寧昱誠/@提及)或我的產品/我的單 ②【任何要求 PM 採取行動的公告】——@全部 要通知作者/要送審/要更新設定/停機維護/政策期限(如 Google Play targetSDK、審查政策),即使沒點名我,我的產品都適用,一律相關 ③影響作者產品營運的期限、風險、異常。無關(要濾):純閒聊寒暄、其他人專案的細節討論、會議時間調整、單純知識分享無行動要求。拿不準時偏向留下。其餘靜默略過但保留計數於 filtered_out"}
+  ],
+  "ops_release": [
+    {"space": "SPACE_ID_2", "kind": "room", "label": "[作者產品線]程式發布(測試)", "note": "iOS/Android 發版紀錄,比對未上線版本用"}
+  ],
+  "other_dms_fallback_priority": 7
+}

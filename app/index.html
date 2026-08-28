@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>Agent Cockpit</title>
+<style>
+/* ═══ Token 系統(照 UIUX_Design_Checklist Phase 3) ═══
+   色彩=owner 四格色;字級 5 級 10/11/12/13/16;間距 4px grid;圓角 3 級 4/8/12;
+   easing 全局 --e;時長 hover120/狀態200/面板320 */
+:root{
+  --q-imm:#F0FFCE; --q-meet:#A53F2B; --q-ops:#CCC9A1; --q-dev:#4C230A;
+  --bronze:#CB9F7D;
+  --glass:rgba(28,22,16,.72); --glass-edge:rgba(255,255,255,.28);
+  --ink:#F2EDE6; --ink-2:rgba(242,237,230,.66); --ink-3:rgba(242,237,230,.42);
+  --hair:rgba(242,237,230,.09);
+  --e:cubic-bezier(.16,1,.3,1);
+  --hot:#F0B9A6; --alarm:#FF9C8C;
+}
+*{box-sizing:border-box;margin:0;-webkit-user-select:none;user-select:none}
+/* 面板內文字可選取複製(owner 要求);球體維持不可選,免拖曳時反白 */
+#sheetBody,#sheetBody *{-webkit-user-select:text;user-select:text}
+.jact{margin-top:8px}
+.jact .jbtn{margin:2px 6px 2px 0}
+.jta{width:100%;margin-top:6px;padding:8px 10px;border-radius:6px;border:1px solid var(--hair);
+  background:rgba(0,0,0,.18);color:var(--ink);font:12px/1.6 inherit;resize:vertical}
+.jta:focus{outline:none;border-color:var(--bronze)}
+.jsel{max-width:200px;padding:5px 8px;margin-right:8px;border-radius:6px;
+  border:1px solid var(--hair);background:rgba(0,0,0,.28);color:var(--ink);font:12px inherit}
+.jsel:focus{outline:none;border-color:var(--bronze)}
+.jsel option{background:#2b231e;color:var(--ink)}
+html,body{background:transparent;overflow:hidden;height:100%;
+  font-family:Inter,"Noto Sans TC","Microsoft JhengHei",sans-serif;font-size:12px;line-height:1.6;
+  color:var(--ink);-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+
+/* ═══ 大球 ═══ */
+#stage{position:relative;width:100%;height:100%}
+#orbWrap{position:absolute;top:20px;right:20px;width:45px;height:45px;cursor:grab}
+#orbWrap:active{cursor:grabbing}
+#orb{width:45px;height:45px;border-radius:50%;overflow:hidden;position:relative;
+  display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;
+  border:1px solid var(--glass-edge);background:rgba(30,26,20,.30);
+  box-shadow:inset 0 10px 16px -8px rgba(255,255,255,.45), inset 0 -8px 14px -10px rgba(0,0,0,.5);
+  transition:transform .2s var(--e)}
+#orbWrap:hover #orb{transform:scale(1.05)}
+.quad{position:relative;transition:opacity .2s var(--e),filter .2s var(--e)}
+.quad[data-q="imm"]{background:var(--q-imm)} .quad[data-q="meet"]{background:var(--q-meet)}
+.quad[data-q="ops"]{background:var(--q-ops)} .quad[data-q="dev"]{background:var(--q-dev)}
+.quad[data-lv="0"]{opacity:.30;filter:saturate(.65) brightness(.92)}
+.quad[data-lv="1"]{opacity:.38}
+.quad[data-lv="2"]{opacity:.72;filter:saturate(1.1)}
+.quad[data-lv="3"]{opacity:.95;filter:saturate(1.25);animation:breath 1.8s var(--e) infinite}
+@keyframes breath{0%,100%{filter:brightness(1) saturate(1.25)}50%{filter:brightness(1.35) saturate(1.5)}}
+.ring{position:absolute;inset:-6px;border-radius:50%;border:2px solid var(--bronze);opacity:0;pointer-events:none}
+.ring.on{animation:ripple 1.8s var(--e) infinite}
+@keyframes ripple{0%{transform:scale(.9);opacity:.55}100%{transform:scale(1.45);opacity:0}}
+
+/* ═══ goo ═══ */
+#gooWrap{position:absolute;top:20px;right:20px;width:45px;height:45px;pointer-events:none;
+  filter:url(#goo);opacity:0;transition:opacity .2s var(--e) .4s}
+body.hover #gooWrap{opacity:1;transition:opacity .12s var(--e)}
+body.panel #gooWrap,body.overview #gooWrap{display:none}
+.gmain{position:absolute;inset:0;border-radius:50%;background:rgba(236,230,220,.9)}
+.gm{position:absolute;left:50%;top:50%;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;
+  background:rgba(236,230,220,.9);transform:translate(0,0) scale(.6);
+  transition:transform .4s cubic-bezier(.6,0,.7,.6)}
+body.hover .gm{transform:translate(var(--tx),var(--ty)) scale(1);transition:transform .5s var(--e)}
+body.hover .gm:nth-child(2){transition-delay:0s}body.hover .gm:nth-child(3){transition-delay:.05s}
+body.hover .gm:nth-child(4){transition-delay:.1s}body.hover .gm:nth-child(5){transition-delay:.15s}
+
+/* ═══ 衛星小球 ═══ */
+#miniRow{position:absolute;top:20px;right:20px;width:45px;height:45px;pointer-events:none}
+.mini{width:20px;height:20px;border-radius:50%;position:absolute;left:50%;top:50%;
+  margin:-10px 0 0 -10px;cursor:pointer;border:1px solid var(--glass-edge);
+  box-shadow:inset 0 5px 8px -4px rgba(255,255,255,.5), inset 0 -4px 8px -6px rgba(0,0,0,.45);
+  opacity:0;pointer-events:none;transform:translate(0,0) scale(.25);filter:blur(3px);
+  transition:opacity .15s var(--e),filter .15s var(--e),transform .4s cubic-bezier(.6,0,.7,.6)}
+[data-p="imm"] {--tx:-48px;--ty:-18px}
+[data-p="meet"]{--tx:-50px;--ty:11px}
+[data-p="ops"] {--tx:-37px;--ty:35px}
+[data-p="dev"] {--tx:-11px;--ty:50px}
+body.hover .mini,body.panel .mini,body.overview .mini{pointer-events:auto}
+body.hover .mini{opacity:1;filter:blur(0);transform:translate(var(--tx),var(--ty)) scale(1);
+  transition:opacity .25s var(--e) .42s,filter .25s var(--e) .42s,transform .5s var(--e)}
+body.hover .mini:nth-child(1){transition-delay:0s}body.hover .mini:nth-child(2){transition-delay:.05s}
+body.hover .mini:nth-child(3){transition-delay:.1s}body.hover .mini:nth-child(4){transition-delay:.15s}
+body.hover .mini:hover{transform:translate(var(--tx),var(--ty)) scale(1.18)}
+body.panel .mini,body.overview .mini{opacity:1;filter:blur(0);transform:translate(var(--tx),var(--ty)) scale(1)}
+body.panel .mini:hover,body.overview .mini:hover{transform:translate(var(--tx),var(--ty)) scale(1.18)}
+.mini .bdg:empty{display:none}
+.mini .bdg{position:absolute;top:-6px;right:-6px;min-width:14px;height:14px;border-radius:8px;padding:0 4px;
+  background:var(--glass);border:1px solid var(--glass-edge);color:var(--ink);
+  font-size:10px;line-height:12px;text-align:center}
+
+/* ═══ 面板:單一平面 ═══ */
+#sheet{position:absolute;inset:118px 10px 10px 10px;z-index:10;border-radius:16px;display:flex;flex-direction:column;
+  background:linear-gradient(165deg,rgba(42,35,29,.96) 0%,rgba(29,24,20,.975) 40%,rgba(23,19,16,.985) 100%);
+  border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(14px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.16), 0 24px 60px -20px rgba(0,0,0,.6);
+  visibility:hidden;pointer-events:none;opacity:0;transform:scale(.22);
+  transition:opacity .2s var(--e),transform .2s var(--e),visibility 0s linear .2s}
+#sheet::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:0;
+  background:radial-gradient(90% 50% at 12% -8%,rgba(255,255,255,.10),transparent 55%)}
+#sheetHead,#sheetBody{position:relative;z-index:1}
+body.panel #sheet,body.overview #sheet{visibility:visible;pointer-events:auto;opacity:1;transform:scale(1);
+  transition:opacity .32s var(--e),transform .32s var(--e),visibility 0s}
+#sheetHead{display:flex;align-items:center;gap:8px;padding:12px 16px;cursor:grab;border-bottom:1px solid var(--hair)}
+#sheetHead:active{cursor:grabbing}
+#sheetTitle{font-weight:600;font-size:13px;letter-spacing:.05em}
+#updated{color:var(--ink-3);font-size:11px;margin-left:auto}
+.hbtn{width:24px;height:24px;border:none;background:none;color:var(--ink-2);cursor:pointer;font-size:16px;line-height:1;padding:0}
+.hbtn:hover{color:var(--ink)}
+.hbtn.spin{animation:rot 1s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+#sheetBody{flex:1;overflow-y:auto;padding:0 0 16px}
+.tabs{display:flex;gap:2px;margin:8px 16px 0;border-bottom:1px solid var(--hair)}
+.tab{font-size:11px;color:var(--ink-3);padding:5px 10px 7px;cursor:pointer;letter-spacing:.06em}
+.tab:hover{color:var(--ink-2)}
+.tab.on{color:var(--ink);font-weight:600;box-shadow:inset 0 -2px 0 var(--bronze)}
+/* 功能視圖:App=一整塊連續底色(標題貼內容);平台之間髮絲線+留白;
+   「漸層發光」下放到功能塊(急迫度=塊的暖度);單在功能塊內純留白隔開 */
+/* 功能視圖:唯一的顏色=App 區域的左緣漸層暈(同現況列的語言),強度=單量×嚴重度;
+   其他分區(平台/功能)零底色,只靠髮絲線+留白+字階 */
+.fvblk{margin-top:24px;padding-bottom:12px}
+.fvblk[data-glow="3"]{background:linear-gradient(90deg,rgba(196,84,58,.34) 0%,rgba(180,70,48,.14) 34%,transparent 74%)}
+.fvblk[data-glow="2"]{background:linear-gradient(90deg,rgba(214,166,126,.24) 0%,rgba(205,155,118,.10) 34%,transparent 74%)}
+.fvblk[data-glow="1"]{background:linear-gradient(90deg,rgba(214,210,172,.13) 0%,rgba(205,200,160,.05) 34%,transparent 74%)}
+.fvh{display:flex;align-items:baseline;gap:10px}
+.fvh .cnt2{font-weight:400;font-size:10px;color:var(--ink-3);letter-spacing:0;white-space:nowrap}
+.fvh1{padding:12px 16px 2px;font-size:13px;font-weight:700;letter-spacing:.05em;color:var(--ink)}
+.fvh2{margin:14px 16px 0;padding:12px 0 2px;border-top:1px solid var(--hair);
+  font-size:11px;font-weight:300;letter-spacing:.16em;color:var(--ink-2)}
+.fvh1 + .fvh2{border-top:none;margin-top:0;padding-top:6px}
+.fvfeat{margin-top:8px;padding:2px 0 4px}
+.fvfeat.open{background:rgba(0,0,0,.16)}   /* 展開中的功能整區壓暗一階 */
+/* 功能塊展開/收合動畫:grid-rows 1fr→0fr 連續收合(同單列 detail 的做法) */
+.fvbody{display:grid;grid-template-rows:1fr;opacity:1;
+  transition:grid-template-rows .26s var(--e),opacity .18s ease}
+/* 入場動畫只在「這次剛被點開」的那塊播(由 renderer 加 .opening);
+   若無條件掛在元素上,每次重繪(點任何一張單/state 更新)全部區塊都會重播=整片閃動 */
+.fvbody>.fvbodyin{overflow:hidden;min-height:0}
+.fvbody.opening>.fvbodyin{animation:fvIn .26s var(--e)}
+.fvbody.closing{grid-template-rows:0fr;opacity:0}
+@keyframes fvIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.fvh3{padding:8px 16px 4px 32px;cursor:pointer;font-size:11px;font-weight:600;color:var(--ink)}
+.fvh3:hover .cnt2{color:var(--ink-2)}
+.q.fvq{padding:9px 16px 9px 40px;background:none;border-top:1px solid rgba(244,239,232,.07)}
+.q.fvq .act{min-width:26px}   /* chip 只標每型第一張,空槽仍佔位讓全部列同縮排 */
+.q.fvq + .detail{margin-left:78px}   /* 展開內文對齊列文字欄(40+26+12) */
+.q.fvq.dropmark{box-shadow:inset 0 2px 0 var(--bronze)}   /* 拖曳落點指示 */
+.q.fvq::before{display:none}
+.fvh3 + .q.fvq{border-top:none}
+#sheetBody::-webkit-scrollbar{width:4px}
+#sheetBody::-webkit-scrollbar-thumb{background:var(--hair);border-radius:2px}
+
+/* 區標:輕量小標(4.1.3) */
+.bhead{display:flex;align-items:center;gap:8px;margin:20px 16px 4px;
+  font-weight:600;font-size:11px;letter-spacing:.08em;color:var(--ink-2)}
+.bhead::after{content:"";flex:1;height:1px;background:var(--hair)}
+.bhead .bic{display:none}
+.sec{margin:0}
+
+/* 熱度列:急迫度=玻璃內擴散的色光(左入光、向右羽化,無硬邊無假框) */
+.q{display:flex;gap:12px;padding:9px 16px;cursor:pointer;align-items:flex-start;position:relative}
+.q::before{content:"";position:absolute;inset:0;pointer-events:none;
+  transition:opacity .2s var(--e)}
+.q[data-sev="3"]::before{background:var(--sev-glow-3,radial-gradient(150% 240% at -12% 50%,rgba(196,84,58,.60) 0%,rgba(180,70,48,.28) 42%,transparent 72%))}
+.q[data-sev="2"]::before{background:var(--sev-glow-2,radial-gradient(150% 240% at -12% 50%,rgba(214,166,126,.38) 0%,rgba(205,155,118,.16) 42%,transparent 72%))}
+.q[data-sev="1"]::before{background:var(--sev-glow-1,radial-gradient(150% 240% at -12% 50%,rgba(214,210,172,.20) 0%,rgba(205,200,160,.08) 42%,transparent 72%))}
+.q>*{position:relative;z-index:1}
+.q:hover::before{opacity:1.25;filter:brightness(1.18)}
+.q:hover{background:rgba(255,255,255,.03)}
+.q .num{flex:none;width:12px;text-align:right;color:var(--ink-3);font-size:11px;padding-top:2px}
+.q .act{flex:none;font-weight:600;font-size:11px;letter-spacing:.08em;padding-top:2px}
+.q .act{color:var(--ink-2)}
+.q .act.reply,.q .act.accept,.q .act.track{color:var(--ink-2)}
+.q .main{flex:1;min-width:0}
+.q .need{font-size:13px;font-weight:600;line-height:1.5}
+.q .sub{font-size:11px;color:var(--ink-2);margin-top:4px;line-height:1.6}
+.hot{color:var(--hot)} .over{color:var(--alarm);font-weight:600}
+.q .done{flex:none;opacity:0;border:none;background:none;color:var(--bronze);cursor:pointer;font-size:13px;padding:0}
+.q:hover .done{opacity:.9}
+.q .ops2{flex:none;opacity:0;display:flex;gap:4px}
+.q:hover .ops2{opacity:1}
+
+/* 展開敘述 */
+.detail{display:grid;grid-template-rows:1fr;margin:8px 16px 12px 52px;font-size:12px;line-height:1.6;color:var(--ink);
+  transition:grid-template-rows .24s var(--e),opacity .2s var(--e),margin .24s var(--e)}
+.detail>.dwrap{overflow:hidden;min-height:0}
+.detail.opening>.dwrap{animation:detIn .26s var(--e)}
+@keyframes detIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.detail.closing{grid-template-rows:0fr;opacity:0;margin-top:0;margin-bottom:0}
+.detail .dcm{margin-top:8px;color:var(--ink-2);font-size:11px;line-height:1.6}
+.jbtn{display:inline-block;margin:8px 16px 0 0;padding:0;border:none;background:none;
+  font-size:11px;color:var(--bronze);cursor:pointer;letter-spacing:.05em}
+.jbtn:hover{text-decoration:underline}
+
+/* 一般列與摺疊列 */
+.row{display:flex;align-items:center;gap:8px;padding:8px 16px;cursor:pointer}
+.row:hover{background:rgba(255,255,255,.06)}
+.dot{width:6px;height:6px;border-radius:50%;flex:none}
+.row .lab{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}
+.row .meta{margin-left:auto;color:var(--ink-2);font-size:11px;flex:none}
+.row .done{flex:none;opacity:0;border:none;background:none;color:var(--bronze);cursor:pointer;font-size:13px}
+.row:hover .done{opacity:.9}
+.jrow{border:none}
+.chip{display:inline-block;font-size:11px;color:var(--ink-2);flex:none;margin-left:8px}
+.chip.due{color:var(--hot)} .chip.over{color:var(--alarm);font-weight:600}
+.fold{display:flex;align-items:center;gap:8px;margin:20px 16px 4px;cursor:pointer;
+  font-weight:600;font-size:11px;letter-spacing:.08em;color:var(--ink-2)}
+.fold::after{content:"";flex:1;height:1px;background:var(--hair)}
+.fold:hover{color:var(--ink)}
+.fold .cnt2{color:var(--ink-3);font-weight:400;font-size:11px}
+.preview{padding:0 16px 8px 36px;color:var(--ink-2);font-size:11px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.empty{padding:16px;color:var(--ink-2);text-align:center;font-size:12px}
+.stale{color:var(--hot)}
+.lc{padding:2px 16px 8px 52px;color:var(--ink-2);font-size:11px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body class="orb">
+<div id="stage">
+  <svg width="0" height="0" style="position:absolute"><defs><filter id="goo">
+    <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="b"/>
+    <feColorMatrix in="b" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -10" result="g"/>
+    <feComposite in="SourceGraphic" in2="g" operator="atop"/>
+  </filter></defs></svg>
+  <div id="gooWrap">
+    <div class="gmain"></div>
+    <div class="gm" data-p="imm"></div><div class="gm" data-p="meet"></div>
+    <div class="gm" data-p="ops"></div><div class="gm" data-p="dev"></div>
+  </div>
+  <div id="orbWrap" title="Agent Cockpit — 點=全景;懸停=分面板">
+    <div class="ring" id="ring"></div>
+    <div id="orb">
+      <div class="quad" data-q="imm"  data-lv="0" title="即時問題"></div>
+      <div class="quad" data-q="meet" data-lv="0" title="會議"></div>
+      <div class="quad" data-q="ops"  data-lv="0" title="Jira+維運"></div>
+      <div class="quad" data-q="dev"  data-lv="0" title="開發進度"></div>
+    </div>
+  </div>
+  <div id="miniRow">
+    <div class="mini" data-p="imm"  style="background:var(--q-imm)"  title="即時問題"><span class="bdg"></span></div>
+    <div class="mini" data-p="meet" style="background:var(--q-meet)" title="會議"><span class="bdg"></span></div>
+    <div class="mini" data-p="ops"  style="background:var(--q-ops)"  title="Jira+維運"><span class="bdg"></span></div>
+    <div class="mini" data-p="dev"  style="background:var(--q-dev)"  title="開發進度"><span class="bdg"></span></div>
+  </div>
+  <div id="sheet">
+    <div id="sheetHead">
+      <span id="sheetTitle">全景總覽</span>
+      <span id="updated"></span>
+      <button class="hbtn" id="btnRefresh" title="立即掃描">⟳</button>
+      <button class="hbtn" id="btnCollapse" title="收合成小球">▏</button>
+    </div>
+    <div id="sheetBody"></div>
+  </div>
+</div>
+<script src="renderer.js"></script>
+</body>
+</html>

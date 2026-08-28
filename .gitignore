@@ -1,0 +1,14 @@
+node_modules/
+__pycache__/
+*.pyc
+.playwright-mcp/
+*.log
+page.png
+screen.png
+eval.txt
+scroll.txt
+shot_err.txt
+# 真實設定與執行態不進版控(範本是 *.example.json)
+config/*.json
+!config/*.example.json
+!config/pipeline.json

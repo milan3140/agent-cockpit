@@ -1,0 +1,22 @@
+{
+  "watches": [
+    {"id": "faye_sara", "enabled": true,
+     "label": "代追蹤:PM-2 的 Product B 單(本週代管)",
+     "owner_accountId": "ACCOUNT_ID_PLACEHOLDER",
+     "owner_name": "pm2",
+     "product_filter": "Product B",
+     "note": "PM-2 這週不在,owner 代看;下週可 enabled:false"},
+    {"id": "faye_edn", "enabled": true,
+     "label": "代追蹤:PM-2 的Product C單",
+     "owner_accountId": "ACCOUNT_ID_PLACEHOLDER",
+     "owner_name": "pm2",
+     "product_filter": "Product C",
+     "note": "owner 2026-08-28 要求納入"},
+    {"id": "faye_bulu", "enabled": true,
+     "label": "代追蹤:PM-2 的Product D單",
+     "owner_accountId": "ACCOUNT_ID_PLACEHOLDER",
+     "owner_name": "pm2",
+     "product_filter": "Product D",
+     "note": "Product D(Product D)與Product C是不同作者;原被誤歸Product C,分開後補追(不要就 enabled:false)"}
+  ]
+}
