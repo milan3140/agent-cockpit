@@ -1,0 +1,828 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "agent-cockpit/state.schema.json",
+  "title": "Agent Cockpit state.json",
+  "description": "collector 與 UI 之間的唯一契約。每支 collector 只寫自己那一個 top-level 區段;UI 只讀這份。新增資料源=新增一個區段 + 一個 renderer。用 collectors/validate_state.py 驗證。",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "immediate": {
+      "type": "object",
+      "description": "即時訊息未讀",
+      "required": [
+        "scanned_at",
+        "rows"
+      ],
+      "properties": {
+        "scanned_at": {
+          "type": "string",
+          "description": "本地時間 YYYY-MM-DD HH:MM:SS"
+        },
+        "readstate_scope": {
+          "type": "boolean",
+          "description": "false=降級為水位線模式,UI 會標示"
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "space",
+              "label",
+              "priority",
+              "unread"
+            ],
+            "properties": {
+              "space": {
+                "type": "string",
+                "description": "來源房間/頻道 id"
+              },
+              "label": {
+                "type": "string"
+              },
+              "priority": {
+                "type": "integer",
+                "description": "1=最優先;決定亮燈等級"
+              },
+              "unread": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "description": "null=該來源讀取失敗"
+              },
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "readstate",
+                  "watermark",
+                  "error"
+                ]
+              },
+              "filtered_out": {
+                "type": "integer",
+                "description": "被相關性規則濾掉的則數"
+              },
+              "url": {
+                "type": "string"
+              },
+              "preview": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "t",
+                    "text"
+                  ],
+                  "properties": {
+                    "t": {
+                      "type": "string",
+                      "description": "HH:MM"
+                    },
+                    "sender_tail": {
+                      "type": "string"
+                    },
+                    "text": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "suggestions": {
+      "type": "object",
+      "description": "從訊息判讀出的「要約時間」建議卡",
+      "required": [
+        "at",
+        "items"
+      ],
+      "properties": {
+        "at": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "title",
+              "text"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "來源訊息唯一 id(用於略過/已建立標記)"
+              },
+              "space": {
+                "type": "string",
+                "description": "來源房間/頻道 id"
+              },
+              "from": {
+                "type": "string",
+                "description": "發訊者識別尾碼"
+              },
+              "room": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              },
+              "at": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string",
+                "description": "原訊息"
+              },
+              "title": {
+                "type": "string"
+              },
+              "start": {
+                "type": "string",
+                "description": "YYYY-MM-DDTHH:MM,空=時間未定"
+              },
+              "end": {
+                "type": "string"
+              },
+              "duration_min": {
+                "type": "integer"
+              },
+              "attendees": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "agenda": {
+                "type": "string"
+              },
+              "conflicts": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "行事曆實查的衝堂"
+              }
+            }
+          }
+        }
+      }
+    },
+    "jira": {
+      "type": "object",
+      "description": "工單:分成要回覆/要驗收/資訊/全部/代管/已修正",
+      "required": [
+        "scanned_at",
+        "await",
+        "need",
+        "mine_all"
+      ],
+      "properties": {
+        "scanned_at": {
+          "type": "string"
+        },
+        "sig": {
+          "type": "string",
+          "description": "內容簽章;UI 用它判斷「看過且沒變」"
+        },
+        "total_open": {
+          "type": "integer"
+        },
+        "await": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ticket"
+          },
+          "description": "等你驗收"
+        },
+        "need": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ticket"
+          },
+          "description": "等你回覆"
+        },
+        "info": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ticket"
+          },
+          "description": "有更新但不需你動"
+        },
+        "mine_all": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ticket"
+          },
+          "description": "全部開放單(功能視圖用)"
+        },
+        "fixed": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ticket"
+          },
+          "description": "已修正帳本(供會報後一鍵清除)"
+        },
+        "watches": {
+          "type": "array",
+          "description": "代管他人的單",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "label",
+              "rows"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              },
+              "note": {
+                "type": "string"
+              },
+              "rows": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/ticket"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "meetings": {
+      "type": "object",
+      "description": "今日會議與會後萃取",
+      "required": [
+        "scanned_at",
+        "today"
+      ],
+      "properties": {
+        "scanned_at": {
+          "type": "string"
+        },
+        "next_start": {
+          "type": "string"
+        },
+        "today": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "start",
+              "title"
+            ],
+            "properties": {
+              "start": {
+                "type": "string"
+              },
+              "end": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "meet": {
+                "type": "string"
+              },
+              "attendees": {
+                "type": "integer"
+              },
+              "prep": {
+                "type": "string",
+                "description": "此例行會要準備什麼"
+              },
+              "doc": {
+                "type": "string"
+              },
+              "record": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  }
+                }
+              },
+              "digest": {
+                "$ref": "#/$defs/digest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "release": {
+      "type": "object",
+      "description": "各產品的線上版與可送審版",
+      "required": [
+        "scanned_at",
+        "apps"
+      ],
+      "properties": {
+        "scanned_at": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        },
+        "apps": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "ios_live": {
+                "$ref": "#/$defs/ver"
+              },
+              "android_live": {
+                "$ref": "#/$defs/ver"
+              },
+              "ios_review": {
+                "$ref": "#/$defs/build"
+              },
+              "android_review": {
+                "$ref": "#/$defs/build"
+              },
+              "ios_qa": {
+                "$ref": "#/$defs/build"
+              },
+              "android_qa": {
+                "$ref": "#/$defs/build"
+              },
+              "ios_note": {
+                "type": "string"
+              },
+              "android_note": {
+                "type": "string"
+              },
+              "ios_test": {
+                "$ref": "#/$defs/build",
+                "description": "(舊欄位)測試包"
+              },
+              "android_test": {
+                "$ref": "#/$defs/build",
+                "description": "(舊欄位)測試包"
+              },
+              "ios_pending": {
+                "type": "array",
+                "description": "線上版後已完成、待上線的單(推導)",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "t": {
+                      "type": "string"
+                    },
+                    "at": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "dev": {
+      "type": "object",
+      "description": "各產品的開發全景",
+      "required": [
+        "scanned_at",
+        "products"
+      ],
+      "properties": {
+        "scanned_at": {
+          "type": "string"
+        },
+        "products": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "name",
+              "goal"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "goal": {
+                "type": "string",
+                "description": "終端目標(算完成度的分母)"
+              },
+              "why": {
+                "type": "string",
+                "description": "為何在做這些——處境與要解的問題"
+              },
+              "step": {
+                "type": "string",
+                "description": "現在在做什麼"
+              },
+              "next": {
+                "type": "string",
+                "description": "下一步要做什麼(動作+對象)"
+              },
+              "pct": {
+                "type": "string",
+                "description": "完成度估計,標「估」"
+              },
+              "basis": {
+                "type": "string",
+                "description": "估計依據"
+              },
+              "commits7d": {
+                "type": "integer"
+              },
+              "last_at": {
+                "type": "string"
+              },
+              "last_msg": {
+                "type": "string"
+              },
+              "lanes": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "age_h": {
+                      "type": "number"
+                    }
+                  }
+                }
+              },
+              "remote": {
+                "type": "string",
+                "description": "他機進度摘要"
+              },
+              "jira": {
+                "type": "object",
+                "description": "該產品的單況摘要(標題陣列)"
+              },
+              "release": {
+                "type": "object",
+                "description": "該產品的版本摘要"
+              }
+            }
+          }
+        }
+      }
+    },
+    "weekly": {
+      "type": "object",
+      "description": "AI 週報草稿",
+      "properties": {
+        "at": {
+          "type": "string"
+        },
+        "week": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string",
+          "description": "草稿檔路徑"
+        },
+        "thread": {
+          "type": "string",
+          "description": "產生它的 LLM thread id,可續談改稿"
+        },
+        "titles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "chat_recent": {
+      "type": "object",
+      "description": "近期對話快照,供交叉判斷「是否已在聊天處理」"
+    },
+    "immediate_wm": {
+      "type": "object",
+      "description": "水位線模式的各來源時間戳"
+    }
+  },
+  "$defs": {
+    "ticket": {
+      "type": "object",
+      "required": [
+        "key",
+        "title",
+        "status"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "唯一單號"
+        },
+        "title": {
+          "type": "string",
+          "description": "清理過的標題"
+        },
+        "raw": {
+          "type": "string",
+          "description": "原始標題(含前綴,可用來判歸屬)"
+        },
+        "what": {
+          "type": "string",
+          "description": "LLM:這單在做什麼(≤20字)"
+        },
+        "need": {
+          "type": "string",
+          "description": "LLM:需要你做什麼(動詞開頭)"
+        },
+        "story": {
+          "type": "string",
+          "description": "LLM:全景敘述 80~120 字"
+        },
+        "status": {
+          "type": "string"
+        },
+        "product": {
+          "type": "string"
+        },
+        "platform": {
+          "type": "string"
+        },
+        "feature": {
+          "type": "string"
+        },
+        "is_bug": {
+          "type": "boolean"
+        },
+        "score": {
+          "type": "number",
+          "description": "排序分數"
+        },
+        "sev": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3,
+          "description": "顯示用嚴重度(決定色溫)"
+        },
+        "due": {
+          "type": "string"
+        },
+        "overdue": {
+          "type": "boolean"
+        },
+        "url": {
+          "type": "string"
+        },
+        "updated": {
+          "type": "string"
+        },
+        "bucket": {
+          "type": "string",
+          "enum": [
+            "await",
+            "need",
+            "other"
+          ],
+          "description": "代管單分組"
+        },
+        "chat_done": {
+          "type": "string",
+          "description": "已在其他管道處理的證據"
+        },
+        "fixed_at": {
+          "type": "string"
+        },
+        "lc": {
+          "type": "object",
+          "description": "最後一則真人留言",
+          "properties": {
+            "by": {
+              "type": "string"
+            },
+            "by_id": {
+              "type": "string"
+            },
+            "at": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            },
+            "asks": {
+              "type": "boolean"
+            },
+            "stale_h": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    },
+    "digest": {
+      "type": "object",
+      "description": "會後萃取:全景 + 與我相關",
+      "properties": {
+        "src": {
+          "type": "string"
+        },
+        "mid": {
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "at": {
+          "type": "string"
+        },
+        "html": {
+          "type": "string",
+          "description": "產出的紀錄檔路徑"
+        },
+        "pending": {
+          "type": "boolean",
+          "description": "來源報告尚未產出"
+        },
+        "overview_summary": {
+          "type": "string"
+        },
+        "apps": {
+          "type": "array",
+          "description": "按產品分段——每段都要有 why 與 what",
+          "items": {
+            "type": "object",
+            "required": [
+              "app",
+              "why",
+              "what"
+            ],
+            "properties": {
+              "app": {
+                "type": "string",
+                "description": "產品正式名;跨平台用「產品(平台)」"
+              },
+              "why": {
+                "type": "string",
+                "description": "為何討論"
+              },
+              "what": {
+                "type": "string",
+                "description": "結論要做什麼"
+              },
+              "status": {
+                "type": "string",
+                "description": "目前處境"
+              },
+              "who": {
+                "type": "string",
+                "description": "主導者"
+              },
+              "points": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "tickets": {
+                "type": "array",
+                "description": "對應的真實單號(不可捏造)",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "t": {
+                      "type": "string"
+                    },
+                    "s": {
+                      "type": "string"
+                    },
+                    "rel": {
+                      "type": "string",
+                      "description": "與本段的關係"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "decisions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "what": {
+                "type": "string"
+              },
+              "who": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "mine_summary": {
+          "type": "string",
+          "description": "與我相關;無關時明說「本場無…」不得省略全景"
+        },
+        "mine_needs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "mine_decisions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "mine_todos": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "ver": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "ver": {
+          "type": "string"
+        },
+        "at": {
+          "type": "string"
+        }
+      }
+    },
+    "build": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "ver": {
+          "type": "string"
+        },
+        "build": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "at": {
+          "type": "string"
+        },
+        "n_builds": {
+          "type": "integer",
+          "description": "線上版之後累計幾版建置"
+        },
+        "inferred": {
+          "type": "boolean",
+          "description": "由測試包版號推導、建置未出"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "v": {
+                "type": "string"
+              },
+              "t": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

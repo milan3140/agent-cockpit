@@ -12,3 +12,7 @@ shot_err.txt
 config/*.json
 !config/*.example.json
 !config/pipeline.json
+# 這三個是模板本體(design token / 域定義 / state 契約),不是使用者私密設定
+!config/theme.json
+!config/domains.json
+!config/schema.json

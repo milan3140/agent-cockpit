@@ -306,7 +306,7 @@ function fvOrd(r) {   // 細階預設序:已修正→驗收→Code Review→進�
   if (/後修|優化|技術債/.test(r.raw || "") || /後修|優化/.test(s)) return 6;
   return 5;
 }
-function renderFeatView() {
+function renderFeatView(compact) {   // compact=總覽用的功能地圖(只到功能塊,不展開單列)
   const j = S.jira;
   const needKeys = new Set([...(j.need || []).map(r => r.key),
     ...(j.watches || []).flatMap(w => (w.rows || []).filter(r => r.bucket === "need").map(r => r.key))]);
@@ -322,7 +322,7 @@ function renderFeatView() {
   const ignRows = allRows.filter(r => (OV?.ignored || {})[r.key]);
   const rows = notIgn(allRows);
   if (!rows.length && !ignRows.length) return `<div class="empty">沒有開放中的單(舊資料?按 ⟳ 重掃)</div>`;
-  const exp = OV?.expand || {};
+  const exp = compact ? {} : (OV?.expand || {});
   const zhStatus = (s) => ({ "Pending": "等待中", "In Progress": "進行中", "To Do": "待辦",
     "Reopened": "重開", "Open": "開放", "Blocked": "卡關" }[s] || s);
   const fvRow = (r, showType, fk) => {
@@ -403,10 +403,10 @@ function renderFeatView() {
     html += `</div>`;
   }
   const nFixAll = rows.filter(r => r._fixed).length;
-  if (nFixAll) {   // 已修正單就在各功能區內(排區內最前);這裡只是全域清除鈕
+  if (nFixAll && !compact) {   // 已修正單就在各功能區內(排區內最前);這裡只是全域清除鈕
     html += `<div class="fold">✓ 已修正 ${nFixAll} 張(在各功能區內)<button class="jbtn" data-clearfix="1" style="margin-left:12px">會報完一鍵清除</button><span class="cnt2"></span></div>`;
   }
-  if (ignRows.length) {   // 可逆:已忽略摺疊,取消即回列表
+  if (ignRows.length && !compact) {   // 可逆:已忽略摺疊,取消即回列表
     html += `<div class="fold" data-tg="fvign">已忽略<span class="cnt2">${ignRows.length} 張 ${exp.fvign ? "▾" : "▸"}</span></div>`;
     if (exp.fvign) html += ignRows.map(r => `<div class="row jrow" data-sev="1">
       <span class="lab">${esc((r.what || r.title).slice(0, 30))}</span>
@@ -425,7 +425,7 @@ function renderOps(compact) {
     if (tab === "feature") return tabs + renderFeatView() + renderRelease();
     return tabs + renderOpsZones(false);
   }
-  return renderOpsZones(true);
+  return renderFeatView(true);   // 總覽:以功能視圖為主
 }
 function renderOpsZones(compact) {
   const j = S.jira;

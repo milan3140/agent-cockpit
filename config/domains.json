@@ -1,0 +1,25 @@
+{
+  "_comment": "四個關注域的定義——名稱、顏色、順序、對應的 state 區段與渲染器。要換成別的主題(例如 監控/客服/家庭),改這裡即可;球的四格會依 order 排列。renderer 的 render<X> 函式以 renderer 欄位對應。",
+  "domains": [
+    {
+      "key": "imm", "name": "即時訊息", "color": "#F0FFCE", "order": 1,
+      "state": ["immediate", "suggestions"], "renderer": "renderImm",
+      "badge": "未讀數", "hint": "有人在等你回覆的訊息"
+    },
+    {
+      "key": "meet", "name": "會議", "color": "#A53F2B", "order": 2,
+      "state": ["meetings", "weekly"], "renderer": "renderMeet",
+      "badge": "今日場次", "hint": "今天的會議、會後紀錄與週報草稿"
+    },
+    {
+      "key": "ops", "name": "工單維運", "color": "#CCC9A1", "order": 3,
+      "state": ["jira", "release"], "renderer": "renderOps",
+      "badge": "待辦張數", "hint": "要你回覆/驗收的工單與版本狀態"
+    },
+    {
+      "key": "dev", "name": "開發進度", "color": "#4C230A", "order": 4,
+      "state": ["dev"], "renderer": "renderDev",
+      "badge": "平均完成度", "hint": "各產品在做什麼、下一步是什麼"
+    }
+  ]
+}
